@@ -25,7 +25,7 @@ export class PipelineBuilder extends PipelineProject {
                 artifacts: {
                     'base-directory': 'infrastructure/cdk.out',
                     files: [
-                        'LambdaStack.template.json'
+                        'ApplicationStack.template.json'
                     ]
                 }
             }),
