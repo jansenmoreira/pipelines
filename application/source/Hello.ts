@@ -1,3 +1,3 @@
 export async function main() {
-  return "Hello, AWS!";
+  return "Hello, Camila!";
 }

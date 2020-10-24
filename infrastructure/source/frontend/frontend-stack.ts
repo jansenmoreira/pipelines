@@ -9,7 +9,7 @@ export class FrontEndStack extends Stack {
         const bucket = new Bucket(this, `${id}ContentBucket`, {
             publicReadAccess: true,
             websiteIndexDocument: "index.html",
-            websiteErrorDocument: "404.html",
+            websiteErrorDocument: "error.html",
             bucketName: `application-content-bucket-${this.account}`
         });
     }
