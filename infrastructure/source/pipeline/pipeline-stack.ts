@@ -4,9 +4,9 @@ import { CloudFormationCreateUpdateStackAction, CodeBuildAction, CodeCommitSourc
 import { CfnParametersCode } from '@aws-cdk/aws-lambda';
 import { Bucket } from '@aws-cdk/aws-s3';
 import { App, Stack, StackProps } from '@aws-cdk/core';
-import { ApplicationBuilder } from './application-builder';
+import { ServerBuilder } from './server-builder';
 import { ClientBuilder } from './client-builder';
-import { PipelineBuilder } from './pipeline-builder';
+import { InfrastructureBuilder } from './infrastructure-builder';
 
 export interface PipelineStackProps extends StackProps {
     readonly code: CfnParametersCode;
@@ -14,26 +14,26 @@ export interface PipelineStackProps extends StackProps {
 }
 
 export class PipelineStack extends Stack {
-    
+
     constructor(app: App, id: string, props: PipelineStackProps) {
         super(app, id, props);
-        
+
         const code = Repository.fromRepositoryName(this, `${id}Repository`, props.repository);
-        
-        const applicationBuilder = new ApplicationBuilder(this, `${id}ApplicationBuilder`);
-        
-        const pipelineBuilder = new PipelineBuilder(this, `${id}PipelineBuilder`);
-        
+
+        const infrastructureBuilder = new InfrastructureBuilder(this, `${id}InfrastructureBuilder`);
+
+        const serverBuilder = new ServerBuilder(this, `${id}ServerBuilder`);
+
         const clientBuilder = new ClientBuilder(this, `${id}ClientBuilder`);
-        
+
         const sourceOutput = new Artifact();
-        
-        const pipelineBuildOutput = new Artifact('PipelineBuildOutput');
-        
-        const applicationBuildOutput = new Artifact('ApplicationBuildOutput');
-        
+
+        const infrastructureBuildOutput = new Artifact('InfrastructureBuildOutput');
+
+        const serverBuildOutput = new Artifact('ServerBuildOutput');
+
         const clientBuildOutput = new Artifact('ClientBuildOutput');
-        
+
         new Pipeline(this, 'Pipeline', {
             stages: [
                 {
@@ -43,52 +43,52 @@ export class PipelineStack extends Stack {
                             actionName: 'CodeCommit_Source',
                             repository: code,
                             output: sourceOutput,
-                        })
-                    ]
+                        }),
+                    ],
                 },
                 {
                     stageName: 'Build',
                     actions: [
                         new CodeBuildAction({
-                            actionName: 'Server_Build',
-                            project: applicationBuilder,
+                            actionName: 'Infrastructure_Build',
+                            project: infrastructureBuilder,
                             input: sourceOutput,
-                            outputs: [applicationBuildOutput],
+                            outputs: [infrastructureBuildOutput],
                         }),
                         new CodeBuildAction({
-                            actionName: 'Infrastructure_Build',
-                            project: pipelineBuilder,
+                            actionName: 'Server_Build',
+                            project: serverBuilder,
                             input: sourceOutput,
-                            outputs: [pipelineBuildOutput],
+                            outputs: [serverBuildOutput],
                         }),
                         new CodeBuildAction({
                             actionName: 'Client_Build',
                             project: clientBuilder,
                             input: sourceOutput,
                             outputs: [clientBuildOutput],
-                        })
-                    ]
+                        }),
+                    ],
                 },
                 {
                     stageName: 'Deploy_Infrastructure',
                     actions: [
                         new CloudFormationCreateUpdateStackAction({
                             actionName: 'Server_Deploy',
-                            templatePath: pipelineBuildOutput.atPath('ApplicationStack.template.json'),
-                            stackName: 'ApplicationStack',
+                            templatePath: infrastructureBuildOutput.atPath('ServerStack.template.json'),
+                            stackName: 'ServerStack',
                             adminPermissions: true,
                             parameterOverrides: {
-                                ...props.code.assign(applicationBuildOutput.s3Location),
+                                ...props.code.assign(serverBuildOutput.s3Location),
                             },
-                            extraInputs: [applicationBuildOutput]
+                            extraInputs: [serverBuildOutput],
                         }),
                         new CloudFormationCreateUpdateStackAction({
                             actionName: 'Client_Deploy',
-                            templatePath: pipelineBuildOutput.atPath('FrontEndStack.template.json'),
-                            stackName: 'FrontEndStack',
-                            adminPermissions: true
-                        })
-                    ]
+                            templatePath: infrastructureBuildOutput.atPath('ClientStack.template.json'),
+                            stackName: 'ClientStack',
+                            adminPermissions: true,
+                        }),
+                    ],
                 },
                 {
                     stageName: 'Deploy_Content',
@@ -96,11 +96,11 @@ export class PipelineStack extends Stack {
                         new S3DeployAction({
                             actionName: 'Client_Deploy',
                             input: clientBuildOutput,
-                            bucket: Bucket.fromBucketName(this, `${id}ContentBucketImport`, `application-content-bucket-${this.account}`)
-                        })
-                    ]
+                            bucket: Bucket.fromBucketName(this, `${id}ClientBucketImport`, `client-bucket-${this.account}`),
+                        }),
+                    ],
                 },
-            ]
+            ],
         });
     }
 }

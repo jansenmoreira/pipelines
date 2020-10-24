@@ -1,7 +1,7 @@
 import { PipelineProject, PipelineProjectProps, BuildSpec, LinuxBuildImage } from "@aws-cdk/aws-codebuild";
 import { Construct } from "@aws-cdk/core";
 
-export class PipelineBuilder extends PipelineProject {
+export class InfrastructureBuilder extends PipelineProject {
 
     constructor(scope: Construct, id: string, props?: PipelineProjectProps) {
         super(scope, `${id}PipelineProject`, {

@@ -2,7 +2,7 @@ import { HttpApi, HttpMethod, LambdaProxyIntegration } from '@aws-cdk/aws-apigat
 import { Code, Function, Runtime }  from '@aws-cdk/aws-lambda';
 import { Construct, Stack, StackProps } from '@aws-cdk/core';
       
-export class ApplicationStack extends Stack {
+export class ServerStack extends Stack {
   public readonly code: any;
 
   constructor(scope: Construct, id: string, props?: StackProps) {
