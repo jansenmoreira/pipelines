@@ -1,7 +1,8 @@
 import { Repository } from '@aws-cdk/aws-codecommit';
 import { Artifact, Pipeline } from '@aws-cdk/aws-codepipeline';
-import { CloudFormationCreateUpdateStackAction, CodeBuildAction, CodeCommitSourceAction } from '@aws-cdk/aws-codepipeline-actions';
+import { CloudFormationCreateUpdateStackAction, CodeBuildAction, CodeCommitSourceAction, S3DeployAction } from '@aws-cdk/aws-codepipeline-actions';
 import { CfnParametersCode } from '@aws-cdk/aws-lambda';
+import { Bucket } from '@aws-cdk/aws-s3';
 import { App, Stack, StackProps } from '@aws-cdk/core';
 import { ApplicationBuilder } from './application-builder';
 import { PipelineBuilder } from './pipeline-builder';
@@ -37,8 +38,8 @@ export class PipelineStack extends Stack {
                             actionName: 'CodeCommit_Source',
                             repository: code,
                             output: sourceOutput,
-                        }),
-                    ],
+                        })
+                    ]
                 },
                 {
                     stageName: 'Build',
@@ -54,11 +55,11 @@ export class PipelineStack extends Stack {
                             project: pipelineBuilder,
                             input: sourceOutput,
                             outputs: [pipelineBuildOutput],
-                        }),
-                    ],
+                        })
+                    ]
                 },
                 {
-                    stageName: 'Deploy',
+                    stageName: 'Deploy_Infrastructure',
                     actions: [
                         new CloudFormationCreateUpdateStackAction({
                             actionName: 'Application_Deploy',
@@ -68,11 +69,27 @@ export class PipelineStack extends Stack {
                             parameterOverrides: {
                                 ...props.code.assign(applicationBuildOutput.s3Location),
                             },
-                            extraInputs: [applicationBuildOutput],
+                            extraInputs: [applicationBuildOutput]
                         }),
-                    ],
+                        new CloudFormationCreateUpdateStackAction({
+                            actionName: 'FrontEnd_Deploy',
+                            templatePath: pipelineBuildOutput.atPath('FrontEndStack.template.json'),
+                            stackName: 'FrontEndStack',
+                            adminPermissions: true
+                        })
+                    ]
                 },
-            ],
+                {
+                    stageName: 'Deploy_Content',
+                    actions: [
+                        new S3DeployAction({
+                            actionName: 'Content_Deploy',
+                            input: applicationBuildOutput,
+                            bucket: Bucket.fromBucketName(this, `${id}ContentBucketImport`, "application-content-bucket")
+                        }),
+                    ]
+                },
+            ]
         });
     }
 }
