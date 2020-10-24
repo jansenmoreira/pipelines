@@ -1,6 +1,6 @@
 import { HttpApi, HttpMethod, LambdaProxyIntegration } from '@aws-cdk/aws-apigatewayv2';
 import { Code, Function, Runtime }  from '@aws-cdk/aws-lambda';
-import { Construct, Stack, StackProps } from '@aws-cdk/core';
+import { CfnOutput, Construct, Stack, StackProps } from '@aws-cdk/core';
       
 export class ServerStack extends Stack {
   public readonly code: any;
@@ -30,6 +30,10 @@ export class ServerStack extends Stack {
         path: '/',
         methods: [ HttpMethod.GET ],
         integration: helloIntegration
+    });
+
+    new CfnOutput(this, `${id}Url`, {
+        value: `https://${helloGateway.httpApiId}.execute-api.${this.region}.amazonaws.com/`
     });
   }
 }
