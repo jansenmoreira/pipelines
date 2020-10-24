@@ -18,7 +18,7 @@ export class PipelineBuilder extends PipelineProject {
                     build: {
                         commands: [
                             'npm run build',
-                            'npm run cdk synth -- -o build'
+                            'npm run cdk synth'
                         ]
                     }
                 },
