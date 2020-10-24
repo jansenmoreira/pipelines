@@ -4,6 +4,7 @@ import { Construct, Stack, StackProps } from '@aws-cdk/core';
       
 export class ServerStack extends Stack {
   public readonly code: any;
+  public readonly apiUrl: string;
 
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
@@ -20,7 +21,6 @@ export class ServerStack extends Stack {
         handler: hello,
     });
       
-
     const helloGateway = new HttpApi(this, `${id}HttpApiGateway`, {
         apiName: 'Hello',
         description: 'Api Gateway for Hello Lambda'

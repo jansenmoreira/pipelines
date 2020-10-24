@@ -20,6 +20,8 @@ export class PipelineStack extends Stack {
 
         const code = Repository.fromRepositoryName(this, `${id}Repository`, props.repository);
 
+        const contentBucket = Bucket.fromBucketName(this, `${id}ClientBucketImport`, `client-bucket-${this.account}`);
+
         const infrastructureBuilder = new InfrastructureBuilder(this, `${id}InfrastructureBuilder`);
 
         const serverBuilder = new ServerBuilder(this, `${id}ServerBuilder`);
@@ -31,6 +33,8 @@ export class PipelineStack extends Stack {
         const infrastructureBuildOutput = new Artifact('InfrastructureBuildOutput');
 
         const serverBuildOutput = new Artifact('ServerBuildOutput');
+
+        const serverDeployOutput = new Artifact();
 
         const clientBuildOutput = new Artifact('ClientBuildOutput');
 
@@ -81,6 +85,8 @@ export class PipelineStack extends Stack {
                                 ...props.code.assign(serverBuildOutput.s3Location),
                             },
                             extraInputs: [serverBuildOutput],
+                            outputFileName: "cdk.out",
+                            output: serverDeployOutput,
                         }),
                         new CloudFormationCreateUpdateStackAction({
                             actionName: 'Client_Deploy',
@@ -96,7 +102,12 @@ export class PipelineStack extends Stack {
                         new S3DeployAction({
                             actionName: 'Client_Deploy',
                             input: clientBuildOutput,
-                            bucket: Bucket.fromBucketName(this, `${id}ClientBucketImport`, `client-bucket-${this.account}`),
+                            bucket: contentBucket,
+                        }),
+                        new S3DeployAction({
+                            actionName: 'Server_Deploy',
+                            input: serverDeployOutput,
+                            bucket: contentBucket,
                         }),
                     ],
                 },
