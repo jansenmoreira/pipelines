@@ -62,7 +62,7 @@ export class PipelineStack extends Stack {
                     actions: [
                         new CloudFormationCreateUpdateStackAction({
                             actionName: 'Application_Deploy',
-                            templatePath: applicationBuildOutput.atPath('ApplicationStack.template.json'),
+                            templatePath: pipelineBuildOutput.atPath('ApplicationStack.template.json'),
                             stackName: 'ApplicationStack',
                             adminPermissions: true,
                             parameterOverrides: {
