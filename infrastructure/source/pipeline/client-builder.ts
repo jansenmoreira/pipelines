@@ -13,7 +13,7 @@ export class ClientBuilder extends PipelineProject {
                 artifacts: {
                     'base-directory': 'client',
                     files: [
-                        '**/*',
+                        './**/*',
                     ]
                 }
             }),
