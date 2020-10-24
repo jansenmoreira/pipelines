@@ -85,7 +85,7 @@ export class PipelineStack extends Stack {
                                 ...props.code.assign(serverBuildOutput.s3Location),
                             },
                             extraInputs: [serverBuildOutput],
-                            outputFileName: "cdk.out",
+                            outputFileName: "server-output.json",
                             output: serverDeployOutput,
                         }),
                         new CloudFormationCreateUpdateStackAction({
