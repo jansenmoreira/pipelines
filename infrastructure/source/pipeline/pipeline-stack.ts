@@ -86,7 +86,7 @@ export class PipelineStack extends Stack {
                             actionName: 'Content_Deploy',
                             input: applicationBuildOutput,
                             bucket: Bucket.fromBucketName(this, `${id}ContentBucketImport`, "application-content-bucket")
-                        }),
+                        })
                     ]
                 },
             ]
