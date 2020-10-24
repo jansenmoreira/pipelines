@@ -50,13 +50,13 @@ export class PipelineStack extends Stack {
                     stageName: 'Build',
                     actions: [
                         new CodeBuildAction({
-                            actionName: 'Application_Build',
+                            actionName: 'Server_Build',
                             project: applicationBuilder,
                             input: sourceOutput,
                             outputs: [applicationBuildOutput],
                         }),
                         new CodeBuildAction({
-                            actionName: 'Pipeline_Build',
+                            actionName: 'Infrastructure_Build',
                             project: pipelineBuilder,
                             input: sourceOutput,
                             outputs: [pipelineBuildOutput],
@@ -73,7 +73,7 @@ export class PipelineStack extends Stack {
                     stageName: 'Deploy_Infrastructure',
                     actions: [
                         new CloudFormationCreateUpdateStackAction({
-                            actionName: 'Application_Deploy',
+                            actionName: 'Server_Deploy',
                             templatePath: pipelineBuildOutput.atPath('ApplicationStack.template.json'),
                             stackName: 'ApplicationStack',
                             adminPermissions: true,
@@ -83,7 +83,7 @@ export class PipelineStack extends Stack {
                             extraInputs: [applicationBuildOutput]
                         }),
                         new CloudFormationCreateUpdateStackAction({
-                            actionName: 'FrontEnd_Deploy',
+                            actionName: 'Client_Deploy',
                             templatePath: pipelineBuildOutput.atPath('FrontEndStack.template.json'),
                             stackName: 'FrontEndStack',
                             adminPermissions: true
@@ -94,7 +94,7 @@ export class PipelineStack extends Stack {
                     stageName: 'Deploy_Content',
                     actions: [
                         new S3DeployAction({
-                            actionName: 'Content_Deploy',
+                            actionName: 'Client_Deploy',
                             input: clientBuildOutput,
                             bucket: Bucket.fromBucketName(this, `${id}ContentBucketImport`, `application-content-bucket-${this.account}`)
                         })

@@ -24,7 +24,7 @@ export class ApplicationBuilder extends PipelineProject {
                 artifacts: {
                     'base-directory': 'application',
                     files: [
-                        'build/Hello.js',
+                        'build/**/*',
                         'node_modules/**/*'
                     ]
                 }
