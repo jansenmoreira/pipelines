@@ -12,7 +12,7 @@ export class ApplicationStack extends Stack {
       
     new Function(this, `${id}Function`, {
       code: this.code,
-      handler: 'Hello.main',
+      handler: 'build/Hello.main',
       runtime: Runtime.NODEJS_12_X,
     });
   }
