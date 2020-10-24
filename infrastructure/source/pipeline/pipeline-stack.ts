@@ -5,6 +5,7 @@ import { CfnParametersCode } from '@aws-cdk/aws-lambda';
 import { Bucket } from '@aws-cdk/aws-s3';
 import { App, Stack, StackProps } from '@aws-cdk/core';
 import { ApplicationBuilder } from './application-builder';
+import { ClientBuilder } from './client-builder';
 import { PipelineBuilder } from './pipeline-builder';
 
 export interface PipelineStackProps extends StackProps {
@@ -23,11 +24,15 @@ export class PipelineStack extends Stack {
         
         const pipelineBuilder = new PipelineBuilder(this, `${id}PipelineBuilder`);
         
+        const clientBuilder = new ClientBuilder(this, `${id}ClientBuilder`);
+        
         const sourceOutput = new Artifact();
         
         const pipelineBuildOutput = new Artifact('PipelineBuildOutput');
         
         const applicationBuildOutput = new Artifact('ApplicationBuildOutput');
+        
+        const clientBuildOutput = new Artifact('ClientBuildOutput');
         
         new Pipeline(this, 'Pipeline', {
             stages: [
@@ -55,6 +60,12 @@ export class PipelineStack extends Stack {
                             project: pipelineBuilder,
                             input: sourceOutput,
                             outputs: [pipelineBuildOutput],
+                        }),
+                        new CodeBuildAction({
+                            actionName: 'Client_Build',
+                            project: clientBuilder,
+                            input: sourceOutput,
+                            outputs: [clientBuildOutput],
                         })
                     ]
                 },
@@ -84,8 +95,8 @@ export class PipelineStack extends Stack {
                     actions: [
                         new S3DeployAction({
                             actionName: 'Content_Deploy',
-                            input: applicationBuildOutput,
-                            bucket: Bucket.fromBucketName(this, `${id}ContentBucketImport`, "application-content-bucket")
+                            input: clientBuildOutput,
+                            bucket: Bucket.fromBucketName(this, `${id}ContentBucketImport`, `application-content-bucket-${this.account}`)
                         })
                     ]
                 },

@@ -7,16 +7,10 @@ export class FrontEndStack extends Stack {
         super(scope, id, props);
         
         const bucket = new Bucket(this, `${id}ContentBucket`, {
-            bucketName: "application-content-bucket"
+            publicReadAccess: true,
+            websiteIndexDocument: "index.html",
+            websiteErrorDocument: "404.html",
+            bucketName: `application-content-bucket-${this.account}`
         });
-
-        new CloudFrontWebDistribution(this, `${id}CloundFrontContent`, {
-            originConfigs: [{ 
-                s3OriginSource: {
-                    s3BucketSource: bucket
-                },
-                behaviors: [ { isDefaultBehavior: true } ]
-            }]
-        })
     }
 }
