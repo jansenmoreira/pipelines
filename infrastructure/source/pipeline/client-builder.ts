@@ -22,9 +22,9 @@ export class ClientBuilder extends PipelineProject {
                     }
                 },
                 artifacts: {
-                    'base-directory': 'client',
+                    'base-directory': 'client/public',
                     files: [
-                        'public/**/*',
+                        './**/*',
                     ]
                 }
             }),
