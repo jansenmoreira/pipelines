@@ -9,7 +9,7 @@ export class ClientStack extends Stack {
             publicReadAccess: true,
             websiteIndexDocument: "index.html",
             websiteErrorDocument: "error.html",
-            bucketName: `client-bucket-${this.account}`
+            bucketName: 'jansenmoreira.com.br'
         });
     }
 }

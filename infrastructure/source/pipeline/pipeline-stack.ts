@@ -20,7 +20,7 @@ export class PipelineStack extends Stack {
 
         const code = Repository.fromRepositoryName(this, `${id}Repository`, props.repository);
 
-        const contentBucket = Bucket.fromBucketName(this, `${id}ClientBucketImport`, `client-bucket-${this.account}`);
+        const contentBucket = Bucket.fromBucketName(this, `${id}ClientBucketImport`, 'jansenmoreira.com.br');
 
         const infrastructureBuilder = new InfrastructureBuilder(this, `${id}InfrastructureBuilder`);
 
