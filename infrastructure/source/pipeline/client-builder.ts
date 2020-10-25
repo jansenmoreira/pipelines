@@ -9,11 +9,22 @@ export class ClientBuilder extends PipelineProject {
             buildSpec: BuildSpec.fromObject({
                 version: '0.2',
                 phases: {
+                    install: {
+                        commands: [
+                            'cd client',
+                            'npm install --only=prod'
+                        ]
+                    },
+                    build: {
+                        commands: [
+                            'npm run build'
+                        ]
+                    }
                 },
                 artifacts: {
                     'base-directory': 'client',
                     files: [
-                        './**/*',
+                        'public/**/*',
                     ]
                 }
             }),
