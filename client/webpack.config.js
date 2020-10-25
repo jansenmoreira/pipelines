@@ -1,7 +1,7 @@
 const path = require('path');
 const VueLoaderPlugin = require('vue-loader/lib/plugin')
 
-const outputPath = path.resolve(__dirname, 'dist');
+const outputPath = path.resolve(__dirname, 'public');
 
 module.exports = {
     entry: './source/main.ts',
@@ -9,10 +9,6 @@ module.exports = {
     output: {
         path: outputPath,
         filename: 'bundle.js'
-    },
-
-    resolve: {
-        extensions: ['.ts', '.js']
     },
 
     devtool: 'source-map',
