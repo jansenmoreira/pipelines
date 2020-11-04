@@ -1,6 +1,7 @@
 import { HttpApi, HttpMethod, LambdaProxyIntegration } from '@aws-cdk/aws-apigatewayv2';
 import { Code, Function, Runtime }  from '@aws-cdk/aws-lambda';
 import { CfnOutput, Construct, Stack, StackProps } from '@aws-cdk/core';
+import { AttributeType, Table } from "@aws-cdk/aws-dynamodb"
       
 export class ServerStack extends Stack {
   public readonly code: any;
@@ -10,30 +11,54 @@ export class ServerStack extends Stack {
     super(scope, id, props);
       
     this.code = Code.fromCfnParameters();
+
+    const postTable = new Table(this, "PostTable", {
+        tableName: "POSTS",
+        partitionKey: {
+            name: "ID",
+            type: AttributeType.STRING
+        }
+    })
       
-    const hello = new Function(this, `${id}Function`, {
+    const createPostFunction = new Function(this, `CreatePostFunction`, {
       code: this.code,
-      handler: 'build/Hello.main',
+      handler: 'build/infrastructure/handlers/create-post-handler.handler',
+      runtime: Runtime.NODEJS_12_X,
+    });
+      
+    const listPostsFunction = new Function(this, `ListPostsFunction`, {
+      code: this.code,
+      handler: 'build/infrastructure/handlers/list-posts-handler.handler',
       runtime: Runtime.NODEJS_12_X,
     });
 
-    const helloIntegration = new LambdaProxyIntegration({
-        handler: hello,
-    });
-      
-    const helloGateway = new HttpApi(this, `${id}HttpApiGateway`, {
-        apiName: 'Hello',
-        description: 'Api Gateway for Hello Lambda'
+    const createPostIntegration = new LambdaProxyIntegration({
+        handler: createPostFunction,
     });
 
-    helloGateway.addRoutes({
+    const listPostsIntegration = new LambdaProxyIntegration({
+        handler: listPostsFunction,
+    });
+      
+    const postsGateway = new HttpApi(this, `PostsGateway`, {
+        apiName: 'Posts',
+        description: 'Api Gateway for Posts Lambda'
+    });
+
+    postsGateway.addRoutes({
+        path: '/',
+        methods: [ HttpMethod.POST ],
+        integration: createPostIntegration
+    });
+
+    postsGateway.addRoutes({
         path: '/',
         methods: [ HttpMethod.GET ],
-        integration: helloIntegration
+        integration: listPostsIntegration
     });
 
     new CfnOutput(this, `${id}Url`, {
-        value: `https://${helloGateway.httpApiId}.execute-api.${this.region}.amazonaws.com/`
+        value: `https://${postsGateway.httpApiId}.execute-api.${this.region}.amazonaws.com/`
     });
   }
 }
