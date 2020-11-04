@@ -5,8 +5,11 @@
     "build": "tsc"
   },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.64",
     "@types/node": "10.17.27",
     "typescript": "~3.9.7"
   },
-  "dependencies": {}
+  "dependencies": {
+    "aws-sdk": "^2.784.0"
+  }
 }
