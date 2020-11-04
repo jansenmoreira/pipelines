@@ -25,12 +25,16 @@ export class ServerStack extends Stack {
       handler: 'build/infrastructure/handlers/create-post-handler.handler',
       runtime: Runtime.NODEJS_12_X,
     });
+
+    postTable.grantWriteData(createPostFunction);
       
     const listPostsFunction = new Function(this, `ListPostsFunction`, {
       code: this.code,
       handler: 'build/infrastructure/handlers/list-posts-handler.handler',
       runtime: Runtime.NODEJS_12_X,
     });
+
+    postTable.grantReadData(listPostsFunction);
 
     const createPostIntegration = new LambdaProxyIntegration({
         handler: createPostFunction,
