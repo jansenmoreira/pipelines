@@ -4,6 +4,7 @@ import { CloudFormationCreateUpdateStackAction, CodeBuildAction, CodeCommitSourc
 import { CfnParametersCode } from '@aws-cdk/aws-lambda';
 import { Bucket } from '@aws-cdk/aws-s3';
 import { App, Stack, StackProps } from '@aws-cdk/core';
+import { CONTENT_BUCKET_NAME } from '../config/constants';
 import { ClientBuilder } from './builders/client-builder';
 import { InfrastructureBuilder } from './builders/infrastructure-builder';
 import { ServerBuilder } from './builders/server-builder';
@@ -20,7 +21,7 @@ export class PipelineStack extends Stack {
 
         const code = Repository.fromRepositoryName(this, 'Repository', props.repository);
 
-        const staticContentBucket = Bucket.fromBucketName(this, 'ContentBucket', 'jansenmoreira.com.br');
+        const staticContentBucket = Bucket.fromBucketName(this, 'ContentBucket', CONTENT_BUCKET_NAME);
 
         const infrastructureBuilder = new InfrastructureBuilder(this, 'InfrastructureBuilder');
         const serverBuilder = new ServerBuilder(this, 'ServerBuilder');
