@@ -1,8 +1,8 @@
 import { Post } from "../../domain/entities/post";
-import { TimestampAgent } from "../../infrastructure/agents/timestamp-agent";
-import { PostRepository } from "../../infrastructure/repositories/post-repository";
+import { PostRepository } from "../repositories/post-repository";
 import { CreatePostCommand } from "../commands/create-post-command";
 import { ListPostsQuery } from "../queries/list-posts-query";
+import { TimestampAgent } from "../agents/timestamp-agent";
 
 export class PostApplicationService {
 

@@ -1,23 +1,20 @@
 import { DynamoDB } from "aws-sdk";
-import { GetItemInput, PutItemInput, QueryInput } from "aws-sdk/clients/dynamodb";
+import { GetItemInput, PutItemInput, ScanInput } from "aws-sdk/clients/dynamodb";
+import { PostRepository } from "../../application/repositories/post-repository";
 import { Post } from "../../domain/entities/post";
-import { PostRepository } from "./post-repository";
-
-
 
 export class PostDynamoDBRepository implements PostRepository {
     private static readonly TABLE_NAME: string = "Posts"
-
 
     constructor(private db: DynamoDB) {
     }
 
     async all(): Promise<Post[]> {
-        const input: QueryInput = {
+        const input: ScanInput = {
             TableName: PostDynamoDBRepository.TABLE_NAME
         }
 
-        const output = await this.db.query(input).promise();
+        const output = await this.db.scan(input).promise();
 
         if (output.Items === undefined) {
             throw new Error("Posts not found!")
