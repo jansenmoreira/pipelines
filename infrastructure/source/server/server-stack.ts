@@ -27,16 +27,16 @@ export class ServerStack extends Stack {
       handler: 'build/infrastructure/handlers/create-post-handler.handler',
       runtime: Runtime.NODEJS_12_X,
     })
-
-    const getPostFunction = new Function(this, 'GetPostFunction', {
-      code: this.code,
-      handler: 'build/infrastructure/handlers/get-post-handler.handler',
-      runtime: Runtime.NODEJS_12_X,
-    })
       
     const listPostsFunction = new Function(this, 'ListPostsFunction', {
       code: this.code,
       handler: 'build/infrastructure/handlers/list-posts-handler.handler',
+      runtime: Runtime.NODEJS_12_X,
+    })
+
+    const getPostFunction = new Function(this, 'GetPostFunction', {
+      code: this.code,
+      handler: 'build/infrastructure/handlers/get-post-handler.handler',
       runtime: Runtime.NODEJS_12_X,
     })
 
@@ -62,14 +62,6 @@ export class ServerStack extends Stack {
     })
 
     gateway.addRoutes({
-        path: '/{id}',
-        methods: [ HttpMethod.POST ],
-        integration: new LambdaProxyIntegration({
-            handler: getPostFunction,
-        })
-    })
-
-    gateway.addRoutes({
         path: '/',
         methods: [ HttpMethod.POST ],
         integration: new LambdaProxyIntegration({
@@ -82,6 +74,14 @@ export class ServerStack extends Stack {
         methods: [ HttpMethod.GET ],
         integration: new LambdaProxyIntegration({
             handler: listPostsFunction,
+        })
+    })
+
+    gateway.addRoutes({
+        path: '/{id}',
+        methods: [ HttpMethod.GET ],
+        integration: new LambdaProxyIntegration({
+            handler: getPostFunction,
         })
     })
 
