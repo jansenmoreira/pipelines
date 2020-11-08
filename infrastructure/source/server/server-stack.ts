@@ -1,7 +1,8 @@
 import { HttpApi, HttpMethod, LambdaProxyIntegration } from '@aws-cdk/aws-apigatewayv2';
-import { Code, Function, Runtime }  from '@aws-cdk/aws-lambda';
-import { CfnOutput, Construct, Stack, StackProps } from '@aws-cdk/core';
-import { AttributeType, Table } from "@aws-cdk/aws-dynamodb"
+import { AttributeType, Table } from '@aws-cdk/aws-dynamodb';
+import { Code, Function, Runtime } from '@aws-cdk/aws-lambda';
+import { Bucket } from '@aws-cdk/aws-s3';
+import { CfnOutput, Construct, RemovalPolicy, Stack, StackProps } from '@aws-cdk/core';
       
 export class ServerStack extends Stack {
   public readonly code: any;
@@ -12,57 +13,58 @@ export class ServerStack extends Stack {
       
     this.code = Code.fromCfnParameters();
 
-    const postTable = new Table(this, "PostTable", {
-        tableName: "POSTS",
-        partitionKey: {
-            name: "ID",
-            type: AttributeType.STRING
-        }
+    const contentBucket = new Bucket(this, 'ContentBucket', {
+        websiteIndexDocument: 'index.html',
+        websiteErrorDocument: 'error.html',
+        publicReadAccess: true,
+        removalPolicy: RemovalPolicy.DESTROY
     })
-      
-    const createPostFunction = new Function(this, `CreatePostFunction`, {
+
+    const createPostFunction = new Function(this, 'CreatePostFunction', {
       code: this.code,
       handler: 'build/infrastructure/handlers/create-post-handler.handler',
       runtime: Runtime.NODEJS_12_X,
     });
-
-    postTable.grantWriteData(createPostFunction);
       
-    const listPostsFunction = new Function(this, `ListPostsFunction`, {
+    const listPostsFunction = new Function(this, 'ListPostsFunction', {
       code: this.code,
       handler: 'build/infrastructure/handlers/list-posts-handler.handler',
       runtime: Runtime.NODEJS_12_X,
     });
 
-    postTable.grantReadData(listPostsFunction);
+    const postsTable = new Table(this, 'PostsTable', {
+        tableName: 'Posts',
+        partitionKey: {
+            name: 'id',
+            type: AttributeType.STRING
+        }
+    })
 
-    const createPostIntegration = new LambdaProxyIntegration({
-        handler: createPostFunction,
-    });
-
-    const listPostsIntegration = new LambdaProxyIntegration({
-        handler: listPostsFunction,
-    });
+    postsTable.grantWriteData(createPostFunction);
+    postsTable.grantReadData(listPostsFunction);
       
-    const postsGateway = new HttpApi(this, `PostsGateway`, {
-        apiName: 'Posts',
-        description: 'Api Gateway for Posts Lambda'
+    const gateway = new HttpApi(this, 'Gateway', {
+        apiName: 'Posts'
     });
 
-    postsGateway.addRoutes({
+    gateway.addRoutes({
         path: '/',
         methods: [ HttpMethod.POST ],
-        integration: createPostIntegration
+        integration: new LambdaProxyIntegration({
+            handler: createPostFunction,
+        })
     });
 
-    postsGateway.addRoutes({
+    gateway.addRoutes({
         path: '/',
         methods: [ HttpMethod.GET ],
-        integration: listPostsIntegration
+        integration: new LambdaProxyIntegration({
+            handler: listPostsFunction,
+        })
     });
 
     new CfnOutput(this, `${id}Url`, {
-        value: `https://${postsGateway.httpApiId}.execute-api.${this.region}.amazonaws.com/`
+        value: `https://${gateway.httpApiId}.execute-api.${this.region}.amazonaws.com/`
     });
   }
 }

@@ -1,12 +1,12 @@
-import { Post } from "../../domain/entities/post";
-import { DynamoDB } from "aws-sdk"
-
-
-import { PostRepository } from "./post-repository";
+import { DynamoDB } from "aws-sdk";
 import { GetItemInput, PutItemInput, QueryInput } from "aws-sdk/clients/dynamodb";
+import { Post } from "../../domain/entities/post";
+import { PostRepository } from "./post-repository";
+
+
 
 export class PostDynamoDBRepository implements PostRepository {
-    private static readonly TABLE_NAME: string = "POSTS"
+    private static readonly TABLE_NAME: string = "Posts"
 
 
     constructor(private db: DynamoDB) {
@@ -29,7 +29,7 @@ export class PostDynamoDBRepository implements PostRepository {
     async getById(id: string): Promise<Post> {
         const input: GetItemInput = {
             TableName: PostDynamoDBRepository.TABLE_NAME,
-            Key: { 'ID': { S: id } }
+            Key: { 'id': { S: id } }
         }
 
         const output = await this.db.getItem(input).promise();

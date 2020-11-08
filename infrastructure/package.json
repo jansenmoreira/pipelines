@@ -5,23 +5,21 @@
     "build": "tsc",
     "cdk": "cdk"
   },
-  "devDependencies": {
-    "@types/node": "10.17.27",
-    "aws-cdk": "1.71.0",
-    "typescript": "~3.9.7",
-    "source-map-support": "^0.5.16"
-  },
   "dependencies": {
-    "@aws-cdk/aws-apigatewayv2": "^1.71.0",
-    "@aws-cdk/aws-cloudfront": "^1.71.0",
-    "@aws-cdk/aws-codebuild": "^1.71.0",
-    "@aws-cdk/aws-codecommit": "^1.71.0",
-    "@aws-cdk/aws-codedeploy": "^1.71.0",
-    "@aws-cdk/aws-codepipeline": "^1.71.0",
-    "@aws-cdk/aws-codepipeline-actions": "^1.71.0",
-    "@aws-cdk/aws-dynamodb": "^1.71.0",
-    "@aws-cdk/aws-lambda": "^1.71.0",
-    "@aws-cdk/aws-s3": "^1.71.0",
-    "@aws-cdk/core": "1.71.0"
+    "@types/node": "10.17.27",
+    "aws-cdk": "1.72.0",
+    "typescript": "~3.9.7",
+    "source-map-support": "^0.5.16",
+    "@aws-cdk/aws-apigatewayv2": "1.72.0",
+    "@aws-cdk/aws-cloudfront": "1.72.0",
+    "@aws-cdk/aws-codebuild": "1.72.0",
+    "@aws-cdk/aws-codecommit": "1.72.0",
+    "@aws-cdk/aws-codedeploy": "1.72.0",
+    "@aws-cdk/aws-codepipeline": "1.72.0",
+    "@aws-cdk/aws-codepipeline-actions": "1.72.0",
+    "@aws-cdk/aws-dynamodb": "1.72.0",
+    "@aws-cdk/aws-lambda": "1.72.0",
+    "@aws-cdk/aws-s3": "1.72.0",
+    "@aws-cdk/core": "1.72.0"
   }
 }

@@ -12,15 +12,12 @@ interface AppData {
 export default Vue.extend({
     
     data(): AppData {
-        console.log("Teste");
-
         return {
-            title: "ABCDEFG "
+            title: "Title"
         }
     }
 })
 </script>
 
 <style>
-
 </style>

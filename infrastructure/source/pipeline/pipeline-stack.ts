@@ -4,9 +4,9 @@ import { CloudFormationCreateUpdateStackAction, CodeBuildAction, CodeCommitSourc
 import { CfnParametersCode } from '@aws-cdk/aws-lambda';
 import { Bucket } from '@aws-cdk/aws-s3';
 import { App, Stack, StackProps } from '@aws-cdk/core';
-import { ServerBuilder } from './server-builder';
-import { ClientBuilder } from './client-builder';
-import { InfrastructureBuilder } from './infrastructure-builder';
+import { ClientBuilder } from './builders/client-builder';
+import { InfrastructureBuilder } from './builders/infrastructure-builder';
+import { ServerBuilder } from './builders/server-builder';
 
 export interface PipelineStackProps extends StackProps {
     readonly code: CfnParametersCode;
@@ -18,25 +18,20 @@ export class PipelineStack extends Stack {
     constructor(app: App, id: string, props: PipelineStackProps) {
         super(app, id, props);
 
-        const code = Repository.fromRepositoryName(this, `${id}Repository`, props.repository);
+        const code = Repository.fromRepositoryName(this, 'Repository', props.repository);
 
-        const contentBucket = Bucket.fromBucketName(this, `${id}ClientBucketImport`, 'jansenmoreira.com.br');
+        const staticContentBucket = Bucket.fromBucketName(this, 'ContentBucket', 'jansenmoreira.com.br');
 
-        const infrastructureBuilder = new InfrastructureBuilder(this, `${id}InfrastructureBuilder`);
+        const infrastructureBuilder = new InfrastructureBuilder(this, 'InfrastructureBuilder');
+        const serverBuilder = new ServerBuilder(this, 'ServerBuilder');
+        const clientBuilder = new ClientBuilder(this, 'ClientBuilder');
 
-        const serverBuilder = new ServerBuilder(this, `${id}ServerBuilder`);
-
-        const clientBuilder = new ClientBuilder(this, `${id}ClientBuilder`);
-
-        const sourceOutput = new Artifact();
-
-        const infrastructureBuildOutput = new Artifact('InfrastructureBuildOutput');
-
-        const serverBuildOutput = new Artifact('ServerBuildOutput');
+        const codeCommitOutput = new Artifact('CodeCommitOutput');
+        const infrastructureBuilderOutput = new Artifact('InfrastructureBuilderOutput');
+        const serverBuilderOutput = new Artifact('ServerBuilderOutput');
+        const clientBuilderOutput = new Artifact('ClientBuilderOutput');
 
         const serverDeployOutput = new Artifact();
-
-        const clientBuildOutput = new Artifact('ClientBuildOutput');
 
         new Pipeline(this, 'Pipeline', {
             stages: [
@@ -46,7 +41,7 @@ export class PipelineStack extends Stack {
                         new CodeCommitSourceAction({
                             actionName: 'CodeCommit_Source',
                             repository: code,
-                            output: sourceOutput,
+                            output: codeCommitOutput,
                         }),
                     ],
                 },
@@ -56,20 +51,20 @@ export class PipelineStack extends Stack {
                         new CodeBuildAction({
                             actionName: 'Infrastructure_Build',
                             project: infrastructureBuilder,
-                            input: sourceOutput,
-                            outputs: [infrastructureBuildOutput],
+                            input: codeCommitOutput,
+                            outputs: [infrastructureBuilderOutput],
                         }),
                         new CodeBuildAction({
                             actionName: 'Server_Build',
                             project: serverBuilder,
-                            input: sourceOutput,
-                            outputs: [serverBuildOutput],
+                            input: codeCommitOutput,
+                            outputs: [serverBuilderOutput],
                         }),
                         new CodeBuildAction({
                             actionName: 'Client_Build',
                             project: clientBuilder,
-                            input: sourceOutput,
-                            outputs: [clientBuildOutput],
+                            input: codeCommitOutput,
+                            outputs: [clientBuilderOutput],
                         }),
                     ],
                 },
@@ -78,21 +73,15 @@ export class PipelineStack extends Stack {
                     actions: [
                         new CloudFormationCreateUpdateStackAction({
                             actionName: 'Server_Deploy',
-                            templatePath: infrastructureBuildOutput.atPath('ServerStack.template.json'),
+                            templatePath: infrastructureBuilderOutput.atPath('ServerStack.template.json'),
                             stackName: 'ServerStack',
                             adminPermissions: true,
                             parameterOverrides: {
-                                ...props.code.assign(serverBuildOutput.s3Location),
+                                ...props.code.assign(serverBuilderOutput.s3Location),
                             },
-                            extraInputs: [serverBuildOutput],
-                            outputFileName: "server-output.json",
+                            extraInputs: [serverBuilderOutput],
+                            outputFileName: "config.json",
                             output: serverDeployOutput,
-                        }),
-                        new CloudFormationCreateUpdateStackAction({
-                            actionName: 'Client_Deploy',
-                            templatePath: infrastructureBuildOutput.atPath('ClientStack.template.json'),
-                            stackName: 'ClientStack',
-                            adminPermissions: true,
                         }),
                     ],
                 },
@@ -101,13 +90,13 @@ export class PipelineStack extends Stack {
                     actions: [
                         new S3DeployAction({
                             actionName: 'Client_Deploy',
-                            input: clientBuildOutput,
-                            bucket: contentBucket,
+                            input: clientBuilderOutput,
+                            bucket: staticContentBucket,
                         }),
                         new S3DeployAction({
-                            actionName: 'Server_Deploy',
+                            actionName: 'Config_Deploy',
                             input: serverDeployOutput,
-                            bucket: contentBucket,
+                            bucket: staticContentBucket,
                         }),
                     ],
                 },

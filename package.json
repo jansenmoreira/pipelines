@@ -1,0 +1,21 @@
+{
+    "name": "pipeline",
+    "version": "1.0.0",
+    "description": "This is a blank project for TypeScript development with CDK.",
+    "scripts": {
+        "infrastructure:npm": "cd ./infrastructure && npm",
+        "infrastructure:cdk": "cd ./infrastructure && cdk",
+        "infrastructure:install": "cd ./infrastructure && npm install",
+        "infrastructure:build": "cd ./infrastructure && npm run build",
+
+        "server:npm": "cd ./server && npm",
+        "server:install": "cd ./server && npm install",
+        "server:build": "cd ./server && npm run build",
+        "server:test": "cd ./server && npm run test",
+        "server:test:coverage": "cd ./server && npm run test -- --coverage --no-cache",
+
+        "client:npm": "cd ./client && npm",
+        "client:install": "cd ./client && npm install",
+        "client:build": "cd ./client && npm run build"
+    }
+}

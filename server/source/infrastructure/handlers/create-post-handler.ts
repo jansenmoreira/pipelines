@@ -1,5 +1,5 @@
-import { Module } from "../ioc/module"
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { Module } from "../ioc/module";
 
 export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
     const module = new Module();

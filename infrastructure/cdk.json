@@ -1,5 +1,5 @@
 {
-  "app": "node build/pipeline.js",
+  "app": "node build/application.js",
   "context": {
     "@aws-cdk/core:enableStackNameDuplicates": "true",
     "aws-cdk:enableDiffNoFail": "true",

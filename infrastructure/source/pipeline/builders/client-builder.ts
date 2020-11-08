@@ -1,17 +1,15 @@
-import { PipelineProject, PipelineProjectProps, BuildSpec, LinuxBuildImage } from "@aws-cdk/aws-codebuild";
+import { BuildSpec, LinuxBuildImage, PipelineProject, PipelineProjectProps } from "@aws-cdk/aws-codebuild";
 import { Construct } from "@aws-cdk/core";
 
-export class ServerBuilder extends PipelineProject {
-
+export class ClientBuilder extends PipelineProject {
     constructor(scope: Construct, id: string, props?: PipelineProjectProps) {
-        super(scope, `${id}ServerProject`, {
-            
+        super(scope, id, {
             buildSpec: BuildSpec.fromObject({
                 version: '0.2',
                 phases: {
                     install: {
                         commands: [
-                            'cd server',
+                            'cd client',
                             'npm install'
                         ]
                     },
@@ -22,20 +20,16 @@ export class ServerBuilder extends PipelineProject {
                     }
                 },
                 artifacts: {
-                    'base-directory': 'server',
+                    'base-directory': 'client/public',
                     files: [
-                        'build/**/*',
-                        'node_modules/**/*'
+                        './**/*',
                     ]
                 }
             }),
-
             environment: {
                 buildImage: LinuxBuildImage.STANDARD_2_0,
             },
-
             ...props
-
         });
     }
 }

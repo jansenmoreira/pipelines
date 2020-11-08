@@ -1,14 +1,12 @@
+import { config, DynamoDB } from "aws-sdk";
 import { PostApplicationService } from "../../application/services/post-application-service";
-import { PostService } from "../../domain/services/post-service";
-import { TimestampService } from "../../domain/services/timestamp-service";
+import { TimestampAgent } from "../agents/timestamp-agent";
 import { PostDynamoDBRepository } from "../repositories/post-dynamodb-repository";
-import { config, DynamoDB } from "aws-sdk"
 
 export class Module {
     private readonly db: DynamoDB
 
-    private readonly timestampService: TimestampService
-    private readonly postService: PostService
+    private readonly timestampAgent: TimestampAgent
     private readonly postRepository: PostDynamoDBRepository
     
     readonly postApplicationService: PostApplicationService
@@ -17,9 +15,8 @@ export class Module {
         config.update({ region: 'us-west-2' })
         this.db = new DynamoDB({ apiVersion: '2012-08-10' })
 
-        this.timestampService = new TimestampService();
-        this.postService = new PostService(this.timestampService);
+        this.timestampAgent = new TimestampAgent();
         this.postRepository = new PostDynamoDBRepository(this.db);
-        this.postApplicationService = new PostApplicationService(this.postRepository, this.postService);
+        this.postApplicationService = new PostApplicationService(this.postRepository, this.timestampAgent);
     }
 }
