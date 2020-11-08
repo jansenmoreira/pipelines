@@ -63,7 +63,7 @@ export class ServerStack extends Stack {
         });
 
         gateway.addRoutes({
-            path: "/api",
+            path: "/",
             methods: [HttpMethod.POST],
             integration: new LambdaProxyIntegration({
                 handler: createPostFunction,
@@ -71,7 +71,7 @@ export class ServerStack extends Stack {
         });
 
         gateway.addRoutes({
-            path: "/api",
+            path: "/",
             methods: [HttpMethod.GET],
             integration: new LambdaProxyIntegration({
                 handler: listPostsFunction,
@@ -79,30 +79,15 @@ export class ServerStack extends Stack {
         });
 
         gateway.addRoutes({
-            path: "/api/{id}",
+            path: "/{id}",
             methods: [HttpMethod.GET],
             integration: new LambdaProxyIntegration({
                 handler: getPostFunction,
             }),
         });
 
-        const cloudFront = new CloudFrontWebDistribution(this, "CloudFront", {
-            originConfigs: [
-                {
-                    s3OriginSource: { s3BucketSource: contentBucket },
-                    behaviors: [{ isDefaultBehavior: true }],
-                },
-                {
-                    customOriginSource: {
-                        domainName: `${gateway.httpApiId}.execute-api.${this.region}.amazonaws.com`,
-                    },
-                    behaviors: [{ pathPattern: "/api/*" }],
-                },
-            ],
-        });
-
         new CfnOutput(this, "api", {
-            value: `https://${gateway.httpApiId}.execute-api.${this.region}.amazonaws.com/api/`,
+            value: `https://${gateway.httpApiId}.execute-api.${this.region}.amazonaws.com/`,
         });
     }
 }
