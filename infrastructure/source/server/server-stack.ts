@@ -3,6 +3,7 @@ import { AttributeType, Table } from '@aws-cdk/aws-dynamodb';
 import { Code, Function, Runtime } from '@aws-cdk/aws-lambda';
 import { Bucket } from '@aws-cdk/aws-s3';
 import { CfnOutput, Construct, RemovalPolicy, Stack, StackProps } from '@aws-cdk/core';
+import { CONTENT_BUCKET_NAME } from '../config/constants';
       
 export class ServerStack extends Stack {
   public readonly code: any;
@@ -14,6 +15,7 @@ export class ServerStack extends Stack {
     this.code = Code.fromCfnParameters();
 
     const contentBucket = new Bucket(this, 'ContentBucket', {
+        bucketName: CONTENT_BUCKET_NAME,
         websiteIndexDocument: 'index.html',
         websiteErrorDocument: 'error.html',
         publicReadAccess: true,
