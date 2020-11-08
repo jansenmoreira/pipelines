@@ -2,14 +2,12 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { Module } from "../ioc/module";
 
 export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-    const module = new Module();
-    console.log(event);
+    const module = new Module()
+    console.log(event)
 
-    if (event.body === null) {
-        return { statusCode: 400, body: "Bad Request" }
-    }
-
-    const post = await module.postApplicationService.getPost(JSON.parse(event.body));
+    const post = await module.postApplicationService.getPost({
+        id: event.pathParameters.id
+    })
 
     return {
         statusCode: 200,
