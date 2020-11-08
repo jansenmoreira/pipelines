@@ -3,3 +3,5 @@ build/
 cdk.out/
 client/public/config.json
 package-lock.json
+client/public/*
+!client/public/index.html
