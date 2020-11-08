@@ -1,7 +1,5 @@
 node_modules/
 build/
 cdk.out/
-client/package-lock.json
-server/package-lock.json
-infrastructure/package-lock.json
 client/public/config.json
+package-lock.json
