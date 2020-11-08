@@ -1,4 +1,5 @@
 import { HttpApi, HttpMethod, LambdaProxyIntegration } from "@aws-cdk/aws-apigatewayv2";
+import { CloudFrontWebDistribution } from "@aws-cdk/aws-cloudfront";
 import { AttributeType, Table } from "@aws-cdk/aws-dynamodb";
 import { Code, Function, Runtime } from "@aws-cdk/aws-lambda";
 import { Bucket } from "@aws-cdk/aws-s3";
@@ -83,6 +84,21 @@ export class ServerStack extends Stack {
             integration: new LambdaProxyIntegration({
                 handler: getPostFunction,
             }),
+        });
+
+        const cloudFront = new CloudFrontWebDistribution(this, "CloudFront", {
+            originConfigs: [
+                {
+                    s3OriginSource: { s3BucketSource: contentBucket },
+                    behaviors: [{ isDefaultBehavior: true }],
+                },
+                {
+                    customOriginSource: {
+                        domainName: `https://${gateway.httpApiId}.execute-api.${this.region}.amazonaws.com/`,
+                    },
+                    behaviors: [{ pathPattern: "/api/*" }],
+                },
+            ],
         });
 
         new CfnOutput(this, "api", {
