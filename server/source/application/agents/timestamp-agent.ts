@@ -1,3 +1,3 @@
 export interface TimestampAgent {
-    now(): number
+    now(): number;
 }

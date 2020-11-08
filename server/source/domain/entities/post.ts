@@ -1,6 +1,6 @@
 export interface Post {
-    readonly id: string
-    readonly title: string
-    readonly content: string
-    readonly timestamp: number
+    readonly id: string;
+    readonly title: string;
+    readonly content: string;
+    readonly timestamp: number;
 }

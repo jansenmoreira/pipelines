@@ -9,6 +9,6 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
 
     return {
         statusCode: 200,
-        body: JSON.stringify(posts)
-    }
+        body: JSON.stringify(posts),
+    };
 }

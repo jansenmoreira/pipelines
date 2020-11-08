@@ -1,3 +1,3 @@
 export interface GetPostsQuery {
-    id: string
+    id: string;
 }

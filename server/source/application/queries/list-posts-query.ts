@@ -1,3 +1,1 @@
-export interface ListPostsQuery {
-    
-}
+export interface ListPostsQuery {}

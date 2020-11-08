@@ -6,13 +6,13 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
     console.log(event);
 
     if (event.body === null) {
-        return { statusCode: 400, body: "Bad Request" }
+        return { statusCode: 400, body: "Bad Request" };
     }
 
     const id = await module.postApplicationService.createPost(JSON.parse(event.body));
 
     return {
         statusCode: 200,
-        body: JSON.stringify({ id: id })
-    }
+        body: JSON.stringify({ id: id }),
+    };
 }

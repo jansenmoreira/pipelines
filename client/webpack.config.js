@@ -1,17 +1,17 @@
-const path = require('path');
-const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const path = require("path");
+const VueLoaderPlugin = require("vue-loader/lib/plugin");
 
-const outputPath = path.resolve(__dirname, 'public');
+const outputPath = path.resolve(__dirname, "public");
 
 module.exports = {
-    entry: './source/application.ts',
+    entry: "./source/application.ts",
 
     output: {
         path: outputPath,
-        filename: 'bundle.js'
+        filename: "bundle.js",
     },
 
-    devtool: 'source-map',
+    devtool: "source-map",
 
     devServer: {
         contentBase: outputPath,
@@ -23,26 +23,21 @@ module.exports = {
         rules: [
             {
                 test: /\.vue$/,
-                loader: 'vue-loader'
+                loader: "vue-loader",
             },
             {
                 test: /\.ts$/,
-                loader: 'ts-loader',
+                loader: "ts-loader",
                 options: {
-                    appendTsSuffixTo: [/\.vue$/]
-                }
+                    appendTsSuffixTo: [/\.vue$/],
+                },
             },
             {
                 test: /\.css$/i,
-                use: [
-                    'style-loader', 
-                    'css-loader'
-                ],
+                use: ["style-loader", "css-loader"],
             },
-        ]
+        ],
     },
 
-    plugins: [
-        new VueLoaderPlugin()
-    ]
+    plugins: [new VueLoaderPlugin()],
 };

@@ -1,3 +1,3 @@
 export interface IdAgent {
-    generate(): string
+    generate(): string;
 }
