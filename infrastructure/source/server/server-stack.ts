@@ -94,7 +94,7 @@ export class ServerStack extends Stack {
                 },
                 {
                     customOriginSource: {
-                        domainName: `https://${gateway.httpApiId}.execute-api.${this.region}.amazonaws.com/`,
+                        domainName: `${gateway.httpApiId}.execute-api.${this.region}.amazonaws.com`,
                     },
                     behaviors: [{ pathPattern: "/api/*" }],
                 },
