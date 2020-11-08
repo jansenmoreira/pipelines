@@ -7,9 +7,11 @@
     "devDependencies": {
         "@types/aws-lambda": "^8.10.64",
         "@types/node": "10.17.27",
+        "@types/uuid": "^8.3.0",
         "typescript": "~3.9.7"
     },
     "dependencies": {
-        "aws-sdk": "^2.784.0"
+        "aws-sdk": "^2.784.0",
+        "uuid": "^8.3.1"
     }
 }

@@ -16,10 +16,6 @@ export class PostDynamoDBRepository implements PostRepository {
 
         const output = await this.db.scan(input).promise();
 
-        if (output.Items === undefined) {
-            throw new Error("Posts not found!")
-        }
-
         return output.Items.map(item => DynamoDB.Converter.unmarshall(item) as Post)
     }
 

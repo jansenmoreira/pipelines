@@ -3,6 +3,7 @@ import { Module } from "../ioc/module";
 
 export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
     const module = new Module();
+    console.log(event);
 
     const posts = await module.postApplicationService.listPosts({});
 

@@ -9,10 +9,10 @@ export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayPr
         return { statusCode: 400, body: "Bad Request" }
     }
 
-    const id = await module.postApplicationService.createPost(JSON.parse(event.body));
+    const post = await module.postApplicationService.getPost(JSON.parse(event.body));
 
     return {
         statusCode: 200,
-        body: JSON.stringify({ id: id })
+        body: JSON.stringify(post)
     }
 }
