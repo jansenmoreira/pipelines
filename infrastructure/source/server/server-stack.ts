@@ -46,7 +46,12 @@ export class ServerStack extends Stack {
     postsTable.grantReadData(listPostsFunction);
       
     const gateway = new HttpApi(this, 'Gateway', {
-        apiName: 'Posts'
+        apiName: 'Posts',
+        corsPreflight: {
+            allowMethods: [HttpMethod.OPTIONS, HttpMethod.GET, HttpMethod.POST],
+            allowHeaders: ["*"],
+            allowOrigins: ["*"]
+        }
     });
 
     gateway.addRoutes({

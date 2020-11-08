@@ -1,4 +1,7 @@
 node_modules/
 build/
 cdk.out/
-package-lock.json
+client/package-lock.json
+server/package-lock.json
+infrastructure/package-lock.json
+client/public/config.json
