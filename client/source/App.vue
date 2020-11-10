@@ -78,7 +78,7 @@ export default class App extends Vue {
     }
 
     private async getPosts(): Promise<void> {
-        const response = await fetch(this.url);
+        const response = await fetch(this.apiUrl("post"));
         const posts: Post[] = await response.json();
         this.posts = [...posts.sort((a, b) => -1 * (a.timestamp - b.timestamp))];
     }
@@ -88,19 +88,23 @@ export default class App extends Vue {
         return date.toLocaleString("pt-BR");
     }
 
+    apiUrl(path: string): string {
+        return `${this.url}${path}`;
+    }
+
     async sendPost(event) {
         event.preventDefault();
 
         this.loading = true;
 
-        const createRespose = await fetch(this.url, {
+        const createRespose = await fetch(this.apiUrl("post"), {
             method: "POST",
             body: JSON.stringify(this.createPostCommand),
         });
 
         const id = (await createRespose.json()).id;
 
-        const getResponse = await fetch(`${this.url}${id}`);
+        const getResponse = await fetch(this.apiUrl(`post/${id}`));
 
         const post = await getResponse.json();
 

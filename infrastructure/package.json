@@ -7,6 +7,7 @@
     },
     "dependencies": {
         "@aws-cdk/aws-apigatewayv2": "1.72.0",
+        "@aws-cdk/aws-certificatemanager": "^1.72.0",
         "@aws-cdk/aws-cloudfront": "1.72.0",
         "@aws-cdk/aws-codebuild": "1.72.0",
         "@aws-cdk/aws-codecommit": "1.72.0",
@@ -15,6 +16,7 @@
         "@aws-cdk/aws-codepipeline-actions": "1.72.0",
         "@aws-cdk/aws-dynamodb": "1.72.0",
         "@aws-cdk/aws-lambda": "1.72.0",
+        "@aws-cdk/aws-route53": "^1.72.0",
         "@aws-cdk/aws-s3": "1.72.0",
         "@aws-cdk/core": "1.72.0",
         "@types/node": "10.17.27",

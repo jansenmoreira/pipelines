@@ -1,7 +1,9 @@
 import { HttpApi, HttpMethod, LambdaProxyIntegration } from "@aws-cdk/aws-apigatewayv2";
-import { CloudFrontWebDistribution } from "@aws-cdk/aws-cloudfront";
+import { Certificate, CertificateValidation } from "@aws-cdk/aws-certificatemanager";
+import { CloudFrontWebDistribution, ViewerCertificate } from "@aws-cdk/aws-cloudfront";
 import { AttributeType, Table } from "@aws-cdk/aws-dynamodb";
 import { Code, Function, Runtime } from "@aws-cdk/aws-lambda";
+import { HostedZone } from "@aws-cdk/aws-route53";
 import { Bucket } from "@aws-cdk/aws-s3";
 import { CfnOutput, Construct, RemovalPolicy, Stack, StackProps } from "@aws-cdk/core";
 import { CONTENT_BUCKET_NAME } from "../config/constants";
@@ -63,7 +65,7 @@ export class ServerStack extends Stack {
         });
 
         gateway.addRoutes({
-            path: "/api",
+            path: "/api/post",
             methods: [HttpMethod.POST],
             integration: new LambdaProxyIntegration({
                 handler: createPostFunction,
@@ -71,7 +73,7 @@ export class ServerStack extends Stack {
         });
 
         gateway.addRoutes({
-            path: "/api",
+            path: "/api/post",
             methods: [HttpMethod.GET],
             integration: new LambdaProxyIntegration({
                 handler: listPostsFunction,
@@ -79,15 +81,40 @@ export class ServerStack extends Stack {
         });
 
         gateway.addRoutes({
-            path: "/api/{id}",
+            path: "/api/post/{id}",
             methods: [HttpMethod.GET],
             integration: new LambdaProxyIntegration({
                 handler: getPostFunction,
             }),
         });
 
+        const apiDomain = `${gateway.httpApiId}.execute-api.${this.region}.amazonaws.com`;
+
+        const hostedZone = new HostedZone(this, "HostedZone", {
+            zoneName: "example.com",
+        });
+
+        const certificate = new Certificate(this, "Certificate", {
+            domainName: "jansenmoreira.com.br",
+            validation: CertificateValidation.fromDns(hostedZone),
+        });
+
+        const cloudFront = new CloudFrontWebDistribution(this, "CloudFront", {
+            viewerCertificate: ViewerCertificate.fromAcmCertificate(certificate),
+            originConfigs: [
+                {
+                    s3OriginSource: { s3BucketSource: contentBucket },
+                    behaviors: [{ isDefaultBehavior: true }],
+                },
+                {
+                    customOriginSource: { domainName: apiDomain },
+                    behaviors: [{ pathPattern: "/api/*" }],
+                },
+            ],
+        });
+
         new CfnOutput(this, "api", {
-            value: `https://${gateway.httpApiId}.execute-api.${this.region}.amazonaws.com/api/`,
+            value: `https://${apiDomain}/api/`,
         });
     }
 }
