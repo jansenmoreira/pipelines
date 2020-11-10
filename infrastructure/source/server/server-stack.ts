@@ -63,7 +63,7 @@ export class ServerStack extends Stack {
         });
 
         gateway.addRoutes({
-            path: "/",
+            path: "/api",
             methods: [HttpMethod.POST],
             integration: new LambdaProxyIntegration({
                 handler: createPostFunction,
@@ -71,7 +71,7 @@ export class ServerStack extends Stack {
         });
 
         gateway.addRoutes({
-            path: "/",
+            path: "/api",
             methods: [HttpMethod.GET],
             integration: new LambdaProxyIntegration({
                 handler: listPostsFunction,
@@ -79,7 +79,7 @@ export class ServerStack extends Stack {
         });
 
         gateway.addRoutes({
-            path: "/{id}",
+            path: "/api/{id}",
             methods: [HttpMethod.GET],
             integration: new LambdaProxyIntegration({
                 handler: getPostFunction,
@@ -87,7 +87,7 @@ export class ServerStack extends Stack {
         });
 
         new CfnOutput(this, "api", {
-            value: `https://${gateway.httpApiId}.execute-api.${this.region}.amazonaws.com/`,
+            value: `https://${gateway.httpApiId}.execute-api.${this.region}.amazonaws.com/api/`,
         });
     }
 }
