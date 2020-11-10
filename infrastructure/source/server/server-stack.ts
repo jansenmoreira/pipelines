@@ -91,7 +91,7 @@ export class ServerStack extends Stack {
         const apiDomain = `${gateway.httpApiId}.execute-api.${this.region}.amazonaws.com`;
 
         const hostedZone = new HostedZone(this, "HostedZone", {
-            zoneName: "example.com",
+            zoneName: "jansenmoreira.com.br",
         });
 
         const certificate = new Certificate(this, "Certificate", {
