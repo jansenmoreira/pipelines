@@ -113,7 +113,10 @@ export class ServerStack extends Stack {
             return undefined;
         }
 
-        const hostedZone = HostedZone.fromHostedZoneId(this, "HostedZone", config.hostedZoneId);
+        const hostedZone = HostedZone.fromHostedZoneAttributes(this, "HostedZone", {
+            hostedZoneId: config.hostedZoneId,
+            zoneName: config.name,
+        });
 
         const certificate = new DnsValidatedCertificate(this, "CrossRegionCertificate", {
             domainName: config.name,
