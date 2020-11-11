@@ -5,7 +5,7 @@ import { AttributeType, Table } from "@aws-cdk/aws-dynamodb";
 import { Code, Function, Runtime } from "@aws-cdk/aws-lambda";
 import { Bucket } from "@aws-cdk/aws-s3";
 import { CfnOutput, Construct, RemovalPolicy, Stack, StackProps } from "@aws-cdk/core";
-import { CustomDomainConfig, DefaultConfig } from "./config/config";
+import { Config } from "./config/config";
 
 export class ServerStack extends Stack {
     public readonly code: any;
@@ -17,6 +17,7 @@ export class ServerStack extends Stack {
         this.code = Code.fromCfnParameters();
 
         const contentBucket = new Bucket(this, "ContentBucket", {
+            bucketName: Config.domainName,
             websiteIndexDocument: "index.html",
             websiteErrorDocument: "error.html",
             publicReadAccess: true,
@@ -88,32 +89,8 @@ export class ServerStack extends Stack {
 
         const apiDomain = `${gateway.httpApiId}.execute-api.${this.region}.amazonaws.com`;
 
-        const cloudFront = new CloudFrontWebDistribution(this, "CloudFront", {
-            viewerCertificate: this.createViewerCertificate(DefaultConfig.customDomain),
-            originConfigs: [
-                {
-                    s3OriginSource: { s3BucketSource: contentBucket },
-                    behaviors: [{ isDefaultBehavior: true }],
-                },
-                {
-                    customOriginSource: { domainName: apiDomain },
-                    behaviors: [{ pathPattern: "/api/*" }],
-                },
-            ],
-        });
-
         new CfnOutput(this, "api", {
             value: `https://${apiDomain}/api/`,
         });
-    }
-
-    createViewerCertificate(config?: CustomDomainConfig): ViewerCertificate | undefined {
-        if (config === undefined) {
-            return undefined;
-        }
-
-        const certificate = Certificate.fromCertificateArn(this, "Certificate", config.certificateArn);
-
-        return ViewerCertificate.fromAcmCertificate(certificate);
     }
 }
