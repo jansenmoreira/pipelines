@@ -1,5 +1,5 @@
 import { HttpApi, HttpMethod, LambdaProxyIntegration } from "@aws-cdk/aws-apigatewayv2";
-import { Certificate, CertificateValidation } from "@aws-cdk/aws-certificatemanager";
+import { DnsValidatedCertificate } from "@aws-cdk/aws-certificatemanager";
 import { CloudFrontWebDistribution, ViewerCertificate } from "@aws-cdk/aws-cloudfront";
 import { AttributeType, Table } from "@aws-cdk/aws-dynamodb";
 import { Code, Function, Runtime } from "@aws-cdk/aws-lambda";
@@ -115,9 +115,10 @@ export class ServerStack extends Stack {
 
         const hostedZone = HostedZone.fromHostedZoneId(this, "HostedZone", config.hostedZoneId);
 
-        const certificate = new Certificate(this, "Certificate", {
+        const certificate = new DnsValidatedCertificate(this, "CrossRegionCertificate", {
             domainName: config.name,
-            validation: CertificateValidation.fromDns(hostedZone),
+            hostedZone: hostedZone,
+            region: "us-east-1",
         });
 
         return ViewerCertificate.fromAcmCertificate(certificate);
