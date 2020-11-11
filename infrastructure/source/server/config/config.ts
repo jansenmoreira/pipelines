@@ -1,6 +1,6 @@
 export interface CustomDomainConfig {
     readonly name: string;
-    readonly hostedZoneId: string;
+    readonly certificateArn: string;
 }
 
 export interface Config {
@@ -10,6 +10,6 @@ export interface Config {
 export const DefaultConfig: Config = {
     customDomain: {
         name: "jansenmoreira.com.br",
-        hostedZoneId: "Z04574592UGZXSAWCQF1B",
+        certificateArn: "arn:aws:acm:us-east-1:825703764719:certificate/9d7426ab-da8b-42f3-a3d0-5729f57bed2b",
     },
 };
