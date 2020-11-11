@@ -6,7 +6,7 @@ import { Code, Function, Runtime } from "@aws-cdk/aws-lambda";
 import { HostedZone } from "@aws-cdk/aws-route53";
 import { Bucket } from "@aws-cdk/aws-s3";
 import { CfnOutput, Construct, RemovalPolicy, Stack, StackProps } from "@aws-cdk/core";
-import { CONTENT_BUCKET_NAME } from "../config/constants";
+import { CustomDomainConfig, DefaultConfig } from "./config/config";
 
 export class ServerStack extends Stack {
     public readonly code: any;
@@ -18,7 +18,6 @@ export class ServerStack extends Stack {
         this.code = Code.fromCfnParameters();
 
         const contentBucket = new Bucket(this, "ContentBucket", {
-            bucketName: CONTENT_BUCKET_NAME,
             websiteIndexDocument: "index.html",
             websiteErrorDocument: "error.html",
             publicReadAccess: true,
@@ -90,17 +89,8 @@ export class ServerStack extends Stack {
 
         const apiDomain = `${gateway.httpApiId}.execute-api.${this.region}.amazonaws.com`;
 
-        const hostedZone = new HostedZone(this, "HostedZone", {
-            zoneName: "jansenmoreira.com.br",
-        });
-
-        const certificate = new Certificate(this, "Certificate", {
-            domainName: "jansenmoreira.com.br",
-            validation: CertificateValidation.fromDns(hostedZone),
-        });
-
         const cloudFront = new CloudFrontWebDistribution(this, "CloudFront", {
-            viewerCertificate: ViewerCertificate.fromAcmCertificate(certificate),
+            viewerCertificate: this.createViewerCertificate(DefaultConfig.customDomain),
             originConfigs: [
                 {
                     s3OriginSource: { s3BucketSource: contentBucket },
@@ -116,5 +106,20 @@ export class ServerStack extends Stack {
         new CfnOutput(this, "api", {
             value: `https://${apiDomain}/api/`,
         });
+    }
+
+    createViewerCertificate(config?: CustomDomainConfig): ViewerCertificate | undefined {
+        if (config === undefined) {
+            return undefined;
+        }
+
+        const hostedZone = HostedZone.fromHostedZoneId(this, "HostedZone", config.hostedZoneId);
+
+        const certificate = new Certificate(this, "Certificate", {
+            domainName: config.name,
+            validation: CertificateValidation.fromDns(hostedZone),
+        });
+
+        return ViewerCertificate.fromAcmCertificate(certificate);
     }
 }
