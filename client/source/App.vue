@@ -72,9 +72,10 @@ export default class App extends Vue {
     }
 
     private async getConfig(): Promise<void> {
-        const response = await fetch("/config.json");
-        const config = await response.json();
-        this.url = config.api;
+        // const response = await fetch("/config.json");
+        // const config = await response.json();
+        // this.url = config.api;
+        this.url = "/api/"
     }
 
     private async getPosts(): Promise<void> {
