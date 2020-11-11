@@ -21,6 +21,7 @@ export class ServerStack extends Stack {
             websiteIndexDocument: "index.html",
             websiteErrorDocument: "error.html",
             publicReadAccess: true,
+            versioned: true,
             removalPolicy: RemovalPolicy.DESTROY,
         });
 
