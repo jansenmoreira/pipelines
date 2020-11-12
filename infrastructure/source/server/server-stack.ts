@@ -1,14 +1,13 @@
 import { HttpApi, HttpMethod, LambdaProxyIntegration } from "@aws-cdk/aws-apigatewayv2";
-import { Certificate } from "@aws-cdk/aws-certificatemanager";
-import { CloudFrontWebDistribution, ViewerCertificate } from "@aws-cdk/aws-cloudfront";
 import { AttributeType, Table } from "@aws-cdk/aws-dynamodb";
-import { Code, Function, Runtime } from "@aws-cdk/aws-lambda";
+import { CfnParametersCode, Code, Function, Runtime } from "@aws-cdk/aws-lambda";
 import { Bucket } from "@aws-cdk/aws-s3";
 import { CfnOutput, Construct, RemovalPolicy, Stack, StackProps } from "@aws-cdk/core";
-import { Config } from "./config/config";
 
 export class ServerStack extends Stack {
-    public readonly code: any;
+    public static readonly DOMAIN: string = "jansenmoreira.com.br";
+
+    public readonly code: CfnParametersCode;
     public readonly apiUrl: string;
 
     constructor(scope: Construct, id: string, props?: StackProps) {
@@ -17,7 +16,7 @@ export class ServerStack extends Stack {
         this.code = Code.fromCfnParameters();
 
         const contentBucket = new Bucket(this, "ContentBucket", {
-            bucketName: Config.domainName,
+            bucketName: ServerStack.DOMAIN,
             websiteIndexDocument: "index.html",
             websiteErrorDocument: "error.html",
             publicReadAccess: true,
@@ -58,40 +57,32 @@ export class ServerStack extends Stack {
         const gateway = new HttpApi(this, "Gateway", {
             apiName: "Posts",
             corsPreflight: {
-                allowMethods: [HttpMethod.OPTIONS, HttpMethod.GET, HttpMethod.POST],
+                allowMethods: [HttpMethod.OPTIONS, HttpMethod.HEAD, HttpMethod.GET, HttpMethod.POST],
                 allowHeaders: ["*"],
-                allowOrigins: ["*"],
+                allowOrigins: [`${ServerStack.DOMAIN}.s3-website-us-west-2.amazonaws.com`, ServerStack.DOMAIN],
             },
         });
 
         gateway.addRoutes({
-            path: "/api/post",
+            path: "/post",
             methods: [HttpMethod.POST],
-            integration: new LambdaProxyIntegration({
-                handler: createPostFunction,
-            }),
+            integration: new LambdaProxyIntegration({ handler: createPostFunction }),
         });
 
         gateway.addRoutes({
-            path: "/api/post",
+            path: "/post",
             methods: [HttpMethod.GET],
-            integration: new LambdaProxyIntegration({
-                handler: listPostsFunction,
-            }),
+            integration: new LambdaProxyIntegration({ handler: listPostsFunction }),
         });
 
         gateway.addRoutes({
-            path: "/api/post/{id}",
+            path: "/post/{id}",
             methods: [HttpMethod.GET],
-            integration: new LambdaProxyIntegration({
-                handler: getPostFunction,
-            }),
+            integration: new LambdaProxyIntegration({ handler: getPostFunction }),
         });
-
-        const apiDomain = `${gateway.httpApiId}.execute-api.${this.region}.amazonaws.com`;
 
         new CfnOutput(this, "api", {
-            value: `https://${apiDomain}/api/`,
+            value: `https://${gateway.httpApiId}.execute-api.${this.region}.amazonaws.com/`,
         });
     }
 }
