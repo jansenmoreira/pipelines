@@ -9,7 +9,7 @@ export const HandlerFactory = (handler: Handler): Proxy => {
 
     return async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
         try {
-            const result = handler(event, module);
+            const result = await handler(event, module);
 
             return {
                 statusCode: 200,
