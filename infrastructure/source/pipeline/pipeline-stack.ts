@@ -9,13 +9,13 @@ import {
 import { CfnParametersCode } from "@aws-cdk/aws-lambda";
 import { Bucket } from "@aws-cdk/aws-s3";
 import { App, Stack, StackProps } from "@aws-cdk/core";
-import { ServerStack } from "../server/server-stack";
 import { ClientBuilder } from "./builders/client-builder";
 import { InfrastructureBuilder } from "./builders/infrastructure-builder";
 import { ServerBuilder } from "./builders/server-builder";
 
 export interface PipelineStackProps extends StackProps {
     readonly code: CfnParametersCode;
+    readonly bucketName: string;
     readonly repository: string;
 }
 
@@ -23,8 +23,8 @@ export class PipelineStack extends Stack {
     constructor(app: App, id: string, props: PipelineStackProps) {
         super(app, id, props);
 
-        const code = Repository.fromRepositoryName(this, "Repository", props.repository);
-        const staticContentBucket = Bucket.fromBucketName(this, "ContentBucket", ServerStack.DOMAIN);
+        const repository = Repository.fromRepositoryName(this, "Repository", props.repository);
+        const staticContentBucket = Bucket.fromBucketName(this, "ContentBucket", props.bucketName);
 
         const infrastructureBuilder = new InfrastructureBuilder(this, "InfrastructureBuilder");
         const serverBuilder = new ServerBuilder(this, "ServerBuilder");
@@ -44,7 +44,7 @@ export class PipelineStack extends Stack {
                     actions: [
                         new CodeCommitSourceAction({
                             actionName: "CodeCommit_Source",
-                            repository: code,
+                            repository: repository,
                             output: codeCommitOutput,
                         }),
                     ],

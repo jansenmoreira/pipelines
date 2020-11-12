@@ -1,22 +1,22 @@
 import { HttpApi, HttpMethod, LambdaProxyIntegration } from "@aws-cdk/aws-apigatewayv2";
 import { AttributeType, Table } from "@aws-cdk/aws-dynamodb";
-import { CfnParametersCode, Code, Function, Runtime } from "@aws-cdk/aws-lambda";
+import { Code, Function, Runtime } from "@aws-cdk/aws-lambda";
 import { Bucket } from "@aws-cdk/aws-s3";
 import { CfnOutput, Construct, RemovalPolicy, Stack, StackProps } from "@aws-cdk/core";
 
-export class ServerStack extends Stack {
-    public static readonly DOMAIN: string = "jansenmoreira.com.br";
+export interface ServerStackProps extends StackProps {
+    code: Code;
+    bucketName: string;
+}
 
-    public readonly code: CfnParametersCode;
+export class ServerStack extends Stack {
     public readonly apiUrl: string;
 
-    constructor(scope: Construct, id: string, props?: StackProps) {
+    constructor(scope: Construct, id: string, props: ServerStackProps) {
         super(scope, id, props);
 
-        this.code = Code.fromCfnParameters();
-
         const contentBucket = new Bucket(this, "ContentBucket", {
-            bucketName: ServerStack.DOMAIN,
+            bucketName: props.bucketName,
             websiteIndexDocument: "index.html",
             websiteErrorDocument: "error.html",
             publicReadAccess: true,
@@ -25,19 +25,19 @@ export class ServerStack extends Stack {
         });
 
         const createPostFunction = new Function(this, "CreatePostFunction", {
-            code: this.code,
+            code: props.code,
             handler: "build/infrastructure/handlers/create-post-handler.handler",
             runtime: Runtime.NODEJS_12_X,
         });
 
         const listPostsFunction = new Function(this, "ListPostsFunction", {
-            code: this.code,
+            code: props.code,
             handler: "build/infrastructure/handlers/list-posts-handler.handler",
             runtime: Runtime.NODEJS_12_X,
         });
 
         const getPostFunction = new Function(this, "GetPostFunction", {
-            code: this.code,
+            code: props.code,
             handler: "build/infrastructure/handlers/get-post-handler.handler",
             runtime: Runtime.NODEJS_12_X,
         });
@@ -59,7 +59,7 @@ export class ServerStack extends Stack {
             corsPreflight: {
                 allowMethods: [HttpMethod.OPTIONS, HttpMethod.HEAD, HttpMethod.GET, HttpMethod.POST],
                 allowHeaders: ["*"],
-                allowOrigins: [`${ServerStack.DOMAIN}.s3-website-us-west-2.amazonaws.com`, ServerStack.DOMAIN],
+                allowOrigins: ["*"],
             },
         });
 

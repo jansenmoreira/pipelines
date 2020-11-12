@@ -1,4 +1,4 @@
-import { config, DynamoDB } from "aws-sdk";
+import { DynamoDB } from "aws-sdk";
 import { IdAgent } from "../../application/agents/id-agent";
 import { TimestampAgent } from "../../application/agents/timestamp-agent";
 import { PostApplicationService } from "../../application/services/post-application-service";
@@ -16,7 +16,6 @@ export class Module {
     readonly postApplicationService: PostApplicationService;
 
     constructor() {
-        config.update({ region: "us-west-2" });
         this.db = new DynamoDB({ apiVersion: "2012-08-10" });
 
         this.idAgent = new UuidIdAgent();
