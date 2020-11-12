@@ -1,6 +1,7 @@
 export interface Environment {
     readonly bucketName: string;
     readonly region: string;
+    readonly account?: string;
 }
 
 export const REPOSITORY_NAME: string = "pipeline";

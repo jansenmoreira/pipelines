@@ -1,18 +1,15 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { APIGatewayProxyEvent } from "aws-lambda";
 import { Module } from "../ioc/module";
+import { HandlerFactory } from "./handler-factory";
 
-export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-    const module = new Module();
-    console.log(event);
-
-    if (event.body === null) {
-        return { statusCode: 400, body: "Bad Request" };
-    }
-
-    const id = await module.postApplicationService.createPost(JSON.parse(event.body));
-
-    return {
-        statusCode: 200,
-        body: JSON.stringify({ id: id }),
-    };
+interface CreatePostHandlerResponse {
+    id: string;
 }
+
+export const handler = HandlerFactory(
+    async (event: APIGatewayProxyEvent, module: Module): Promise<CreatePostHandlerResponse> => {
+        const id = await module.postApplicationService.createPost(JSON.parse(event.body));
+
+        return { id: id };
+    }
+);

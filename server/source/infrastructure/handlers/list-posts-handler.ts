@@ -1,14 +1,12 @@
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
+import { APIGatewayProxyEvent } from "aws-lambda";
+import { Post } from "../../domain/entities/post";
 import { Module } from "../ioc/module";
+import { HandlerFactory } from "./handler-factory";
 
-export async function handler(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
-    const module = new Module();
-    console.log(event);
+export const handler = HandlerFactory(
+    async (event: APIGatewayProxyEvent, module: Module): Promise<Post[]> => {
+        const posts = await module.postApplicationService.listPosts({});
 
-    const posts = await module.postApplicationService.listPosts({});
-
-    return {
-        statusCode: 200,
-        body: JSON.stringify(posts),
-    };
-}
+        return posts;
+    }
+);
